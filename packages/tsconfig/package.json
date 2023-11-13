@@ -5,5 +5,11 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.1.1"
+  },
+  "devDependencies": {
+    "vite-plugin-checker": "^0.6.2"
   }
 }
