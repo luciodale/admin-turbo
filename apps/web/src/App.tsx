@@ -7,7 +7,7 @@ export function App() {
     console.log(a, 1);
   }, []);
   return (
-    <div>
+    <div className="bg-red-500 text-green-200">
       hello we here
       <Foo />
     </div>
