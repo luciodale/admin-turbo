@@ -1,2 +1,2 @@
 import sharedConfig from "prettier-config/.prettierrc.ts";
-export default sharedConfig
+export default sharedConfig;
