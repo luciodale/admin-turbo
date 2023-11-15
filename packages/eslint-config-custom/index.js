@@ -19,15 +19,15 @@ module.exports = {
   rules: {
     "@typescript-eslint/no-non-null-assertion": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
+    "no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "unused-imports/no-unused-imports-ts": 2,
-    "@typescript-eslint/no-explicit-any": 1
+    "@typescript-eslint/no-explicit-any": 1,
   },
-  "settings": {
+  settings: {
     "import/resolver": {
-      "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
-      }
-    }
-  }
+      node: {
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
+      },
+    },
+  },
 };

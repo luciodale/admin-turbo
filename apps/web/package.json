@@ -4,10 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "yarn run hasura-introspect:dev && concurrently \"yarn vite:watch\" \"yarn codegen:watch\"",
+    "vite:watch": "vite --open",
+    "build": "tsc && yarn hasura-introspect && yarn codegen && vite build",
     "preview": "vite preview",
-    "lint": "eslint \"src/**/*.{ts,tsx}\""
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "hasura-introspect": "gq $VITE_HASURA_NAME -H \"X-Hasura-Admin-Secret: $HASURA_ADMIN_SECRET\" --introspect > schema.graphql",
+    "hasura-introspect:dev": "dotenv-run-script .env -- hasura-introspect",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.2.3",
@@ -30,14 +35,20 @@
     "urql": "^4.0.6"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/client-preset": "4.1.0",
+    "@parcel/watcher": "^2.3.0",
     "@tanstack/router-devtools": "^0.0.1-beta.210",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "concurrently": "^8.2.2",
+    "dotenv": "^16.3.1",
     "dotenv-run-script": "^0.4.1",
     "eslint-config-custom": "*",
     "graphql": "^16.8.1",
+    "graphqurl": "^1.0.1",
     "prettier-config": "*",
+    "ts-node": "^10.9.1",
     "tsconfig": "*",
     "vite": "^4.5.0"
   }

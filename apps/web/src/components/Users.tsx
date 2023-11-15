@@ -5,12 +5,18 @@ import {
   useMantineReactTable,
   type MRT_ColumnDef,
 } from "mantine-react-table";
-import { gql, useQuery, useSubscription } from "urql";
+import { gql, useSubscription } from "urql";
+import { UserPermissionsSubscription } from "../gql/graphql";
 
-function UsersTable({ data }) {
-  console.log("data in user table", data);
+type TableColumns = UserPermissionsSubscription["folio_user"][number];
+
+function UsersTable({
+  data,
+}: {
+  data: UserPermissionsSubscription["folio_user"];
+}) {
   //should be memoized or stable
-  const columns = useMemo<MRT_ColumnDef<any>[]>(
+  const columns = useMemo<MRT_ColumnDef<TableColumns>[]>(
     () => [
       {
         accessorFn: (row) => `${row.firstname} ${row.lastname}`,
@@ -25,7 +31,7 @@ function UsersTable({ data }) {
         header: "Email",
       },
       {
-        accessorFn: (row) => row?.roles?.join(","),
+        accessorFn: (row) => row.roles.join(","),
         header: "Roles",
       },
     ],
@@ -72,59 +78,20 @@ const UsersTableSub = gql`
   }
 `;
 
-const UsersTableQuery = gql`
-  query UserPermissions($org: Int!) {
-    folio_user(
-      where: { organisation: { _eq: $org } }
-      order_by: { firstname: asc, lastname: asc }
-    ) {
-      id
-      firstname
-      lastname
-      username
-      email
-      roles
-      blocked
-      sessions {
-        last_seen
-      }
-      permissions {
-        id
-        permission
-        packageByPackage {
-          id
-          name
-          sourceBySource {
-            name
-          }
-        }
-      }
-    }
-  }
-`;
-
-const handleSubscription = (messages = [], response) => {
-  return response.folio_user;
-};
-
 export function Users() {
-  const [result] = useQuery({
-    query: UsersTableQuery,
-    variables: { org: 7 },
-  });
-
-  console.log("this is a normal query", result);
-
-  const [res] = useSubscription(
+  const [res] = useSubscription<UserPermissionsSubscription>(
     { query: UsersTableSub, variables: { org: 7 } },
-    handleSubscription
+    (_messages, response) => response
   );
 
   const { data, fetching, error } = res;
-  console.log("data", data);
 
   if (fetching) return <p>Loading...</p>;
   if (error) return <p>Oh no... {error.message}</p>;
 
-  return <Box sx={{ p: 2 }}>{data?.length && <UsersTable data={data} />}</Box>;
+  return (
+    <Box sx={{ p: 2 }}>
+      {data?.folio_user && <UsersTable data={data.folio_user} />}
+    </Box>
+  );
 }

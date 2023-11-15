@@ -56,7 +56,7 @@ const UrqlClient = new Client({
 const WithAuth = withAuthenticationRequired(Dashboard);
 
 function AuthHandler() {
-  const { isLoading } = useAuth0();
+  const { isLoading, getAccessTokenSilently } = useAuth0();
 
   if (isLoading)
     return (
@@ -74,7 +74,7 @@ function AuthHandler() {
 
   return (
     <Provider value={UrqlClient}>
-      <WithAuth />{" "}
+      <WithAuth />
     </Provider>
   );
 }
