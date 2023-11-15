@@ -1,0 +1,14 @@
+[build]
+  command = "yarn run build"
+  publish = "dist"
+
+[dev]
+  command = "yarn run vite"
+  targetPort = 5273
+  port = 5173
+  publish = "dist"
+  [dev.https]
+    certFile = "./server.crt"
+    keyFile = "./server.key"
+
+

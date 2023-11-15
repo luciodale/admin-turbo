@@ -9,7 +9,7 @@
     "build": "tsc && yarn hasura-introspect && yarn codegen && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "hasura-introspect": "gq $VITE_HASURA_NAME -H \"X-Hasura-Admin-Secret: $HASURA_ADMIN_SECRET\" --introspect > schema.graphql",
+    "hasura-introspect": "echo $VITE_HASURA_NAME && gq $VITE_HASURA_NAME -H \"X-Hasura-Admin-Secret: $HASURA_ADMIN_SECRET\" --introspect > schema.graphql",
     "hasura-introspect:dev": "dotenv-run-script .env -- hasura-introspect",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:watch": "graphql-codegen --config codegen.ts --watch"

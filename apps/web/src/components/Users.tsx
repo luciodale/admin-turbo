@@ -5,18 +5,51 @@ import {
   useMantineReactTable,
   type MRT_ColumnDef,
 } from "mantine-react-table";
-import { gql, useSubscription } from "urql";
-import { UserPermissionsSubscription } from "../gql/graphql";
+import { useSubscription } from "urql";
+import { graphql } from "../gql/gql";
 
-type TableColumns = UserPermissionsSubscription["folio_user"][number];
+const UsersTableSub = graphql(/* GraphQL */ `
+  subscription UserPermissions($org: Int!) {
+    folio_user(
+      where: { organisation: { _eq: $org } }
+      order_by: { firstname: asc, lastname: asc }
+    ) {
+      id
+      firstname
+      lastname
+      username
+      email
+      roles
+      blocked
+      sessions {
+        last_seen
+      }
+      permissions {
+        id
+        permission
+        packageByPackage {
+          id
+          name
+          sourceBySource {
+            name
+          }
+        }
+      }
+    }
+  }
+`);
 
-function UsersTable({
-  data,
-}: {
-  data: UserPermissionsSubscription["folio_user"];
-}) {
+function useUsers() {
+  const [res] = useSubscription(
+    { query: UsersTableSub, variables: { org: 7 } },
+    (_messages, response) => response
+  );
+  return res;
+}
+
+function UsersTable({ data }: { data: TUser[] }) {
   //should be memoized or stable
-  const columns = useMemo<MRT_ColumnDef<TableColumns>[]>(
+  const columns = useMemo<MRT_ColumnDef<TUser>[]>(
     () => [
       {
         accessorFn: (row) => `${row.firstname} ${row.lastname}`,
@@ -47,43 +80,12 @@ function UsersTable({
   return <MantineReactTable table={table} />;
 }
 
-const UsersTableSub = gql`
-  subscription UserPermissions($org: Int!) {
-    folio_user(
-      where: { organisation: { _eq: $org } }
-      order_by: { firstname: asc, lastname: asc }
-    ) {
-      id
-      firstname
-      lastname
-      username
-      email
-      roles
-      blocked
-      sessions {
-        last_seen
-      }
-      permissions {
-        id
-        permission
-        packageByPackage {
-          id
-          name
-          sourceBySource {
-            name
-          }
-        }
-      }
-    }
-  }
-`;
+type TUser = NonNullable<
+  ReturnType<typeof useUsers>["data"]
+>["folio_user"][number];
 
 export function Users() {
-  const [res] = useSubscription<UserPermissionsSubscription>(
-    { query: UsersTableSub, variables: { org: 7 } },
-    (_messages, response) => response
-  );
-
+  const res = useUsers();
   const { data, fetching, error } = res;
 
   if (fetching) return <p>Loading...</p>;
